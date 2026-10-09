@@ -32,8 +32,8 @@
           pkgs = nixpkgs.legacyPackages.${system};
           lib = pkgs.lib;
 
-          libpkgs = self.libpkgs {inherit pkgs lib;};
-          libattrs = self.libattrs {inherit pkgs lib;};
+          libpkgs = import ./lib/pkgs.nix {inherit pkgs lib;};
+          libattrs = import ./lib/attrs.nix {inherit pkgs lib;};
         in
           {
             inherit system pkgs lib libpkgs libattrs;
@@ -47,36 +47,6 @@
         nixpkgs.lib.genAttrs'
         (mapSystems systems)
         (inputs: nixpkgs.lib.nameValuePair inputs.system (mapAttrs inputs));
-    };
-
-    libpkgs = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      mkApp = {package}:
-        {
-          type = "app";
-          program = lib.getExe package;
-        }
-        // lib.optionalAttrs (package ? meta) package.meta;
-
-      mkEnv = {packages}:
-        pkgs.buildEnv {
-          name = "env";
-          paths = packages;
-        };
-    };
-
-    libattrs = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      attrsToValueList = attrs:
-        builtins.map
-        (attr: attr.value)
-        (lib.attrsToList attrs);
     };
   };
 }
