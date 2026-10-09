@@ -1,5 +1,5 @@
 {
-  outputs = {...}: {
+  outputs = {self, ...}: {
     util = {
       inputs,
       systems,
@@ -31,9 +31,10 @@
         (system: let
           pkgs = nixpkgs.legacyPackages.${system};
           lib = pkgs.lib;
+          libpkgs = self.libpkgs {inherit pkgs lib;};
         in
           {
-            inherit system pkgs lib;
+            inherit system pkgs lib libpkgs;
           }
           // mapInputs {
             inherit inputs system lib;
@@ -44,6 +45,19 @@
         nixpkgs.lib.genAttrs'
         (mapSystems systems)
         (inputs: nixpkgs.lib.nameValuePair inputs.system (mapAttrs inputs));
+    };
+
+    libpkgs = {
+      pkgs,
+      lib,
+      ...
+    }: {
+      mkApp = package:
+        {
+          type = "app";
+          program = lib.getExe package;
+        }
+        // lib.optionalAttrs (package ? meta) package.meta;
     };
   };
 }
