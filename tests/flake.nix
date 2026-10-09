@@ -13,14 +13,25 @@
   in {
     formatter = util.forEachSystem ({pkgs, ...}: pkgs.alejandra);
 
-    packages = util.forEachSystem ({external, ...}: external.packages);
+    packages = util.forEachSystem ({
+      external,
+      libpkgs,
+      libattrs,
+      ...
+    }: {
+      env = libpkgs.mkEnv {
+        packages = libattrs.attrsToValueList external.packages;
+      };
+    });
 
     apps = util.forEachSystem ({
-      self,
+      external,
       libpkgs,
       ...
     }: {
-      default = libpkgs.mkApp self.packages.default;
+      default = libpkgs.mkApp {
+        package = external.packages.default;
+      };
     });
 
     devShells = util.forEachSystem ({

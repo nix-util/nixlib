@@ -31,10 +31,12 @@
         (system: let
           pkgs = nixpkgs.legacyPackages.${system};
           lib = pkgs.lib;
+
           libpkgs = self.libpkgs {inherit pkgs lib;};
+          libattrs = self.libattrs {inherit pkgs lib;};
         in
           {
-            inherit system pkgs lib libpkgs;
+            inherit system pkgs lib libpkgs libattrs;
           }
           // mapInputs {
             inherit inputs system lib;
@@ -52,12 +54,29 @@
       lib,
       ...
     }: {
-      mkApp = package:
+      mkApp = {package}:
         {
           type = "app";
           program = lib.getExe package;
         }
         // lib.optionalAttrs (package ? meta) package.meta;
+
+      mkEnv = {packages}:
+        pkgs.buildEnv {
+          name = "env";
+          paths = packages;
+        };
+    };
+
+    libattrs = {
+      pkgs,
+      lib,
+      ...
+    }: {
+      attrsToValueList = attrs:
+        builtins.map
+        (attr: attr.value)
+        (lib.attrsToList attrs);
     };
   };
 }
