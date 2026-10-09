@@ -1,0 +1,58 @@
+{
+  "nodes": {
+    "external": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1,
+        "narHash": "sha256-9D6gisi5Mi1TqTMgSf7Ejf71Eod5iWsQUoLPb9kSdAQ=",
+        "path": "./external/",
+        "type": "path"
+      },
+      "original": {
+        "path": "./external/",
+        "type": "path"
+      }
+    },
+    "nixlib": {
+      "locked": {
+        "lastModified": 0,
+        "narHash": "sha256-wJh+Uf2JBZCTxbUaOkPg2IVS/78FXtqM4ZFoxbgNem4=",
+        "path": "../.",
+        "type": "path"
+      },
+      "original": {
+        "path": "../.",
+        "type": "path"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1791456040,
+        "narHash": "sha256-H83yz/do+hjOO0uujHyH8RgtIQP2v7Mw+cLwcZK/xKc=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "e7439b6b14ad3cc35d05608ebca9bce01a25f5f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "external": "external",
+        "nixlib": "nixlib",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
