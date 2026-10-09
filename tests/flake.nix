@@ -15,6 +15,14 @@
 
     packages = util.forEachSystem ({external, ...}: external.packages);
 
+    apps = util.forEachSystem ({
+      self,
+      libpkgs,
+      ...
+    }: {
+      default = libpkgs.mkApp self.packages.default;
+    });
+
     devShells = util.forEachSystem ({
       self,
       pkgs,
