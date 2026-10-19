@@ -8,7 +8,7 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-9D6gisi5Mi1TqTMgSf7Ejf71Eod5iWsQUoLPb9kSdAQ=",
+        "narHash": "sha256-laqXZJvPgHFWUkVcPRDfh0Eo4ZnrACRYKUlyHDE1QEU=",
         "path": "./external/",
         "type": "path"
       },
@@ -20,7 +20,7 @@
     "nixlib": {
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-FqoxJn+lPxNc0YrkxIO/0fHwwmNi6uJC//Cy+k33IO4=",
+        "narHash": "sha256-F08EuiZBHHaj+6Kxla1i1NJZgwJJ+jCYEl/2+S5CdK8=",
         "path": "../.",
         "type": "path"
       },

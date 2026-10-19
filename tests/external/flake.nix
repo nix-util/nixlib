@@ -5,6 +5,11 @@
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
   in {
+    nixosModules = rec {
+      foo = {...}: {};
+      default = foo;
+    };
+
     packages.${system} = rec {
       lolcat = pkgs.lolcat;
       cowsay = pkgs.cowsay;

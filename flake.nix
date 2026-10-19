@@ -1,5 +1,5 @@
 {
-  outputs = {self, ...}: {
+  outputs = {...}: {
     util = {
       inputs,
       systems,
@@ -9,7 +9,7 @@
         then inputs.nixpkgs
         else builtins.throw "expected inputs to contain `nixpgs`";
     in rec {
-      mapInputs = {
+      mapInputSystems = {
         inputs,
         system,
         lib,
@@ -38,7 +38,7 @@
           {
             inherit system pkgs lib libpkgs libattrs;
           }
-          // mapInputs {
+          // mapInputSystems {
             inherit inputs system lib;
           })
         systems;
@@ -47,6 +47,30 @@
         nixpkgs.lib.genAttrs'
         (mapSystems systems)
         (inputs: nixpkgs.lib.nameValuePair inputs.system (mapAttrs inputs));
+
+      mapInputModules = inputs: let
+        safe_inputs = builtins.removeAttrs inputs ["self" "nixpkgs"];
+        has_modules = nixpkgs.lib.filterAttrs (_input_key: outputs: outputs ? nixosModules) safe_inputs;
+      in
+        nixpkgs.lib.foldlAttrs (
+          acc: _input_key: outputs:
+            acc // builtins.removeAttrs outputs.nixosModules ["default"]
+        )
+        {}
+        has_modules;
+
+      mapModules = modules:
+        nixpkgs.lib.mapAttrs
+        (_module_key: module: {...}: {
+          imports = [
+            ({config, ...}: {config._module.args = {inherit inputs;};})
+            module
+          ];
+        })
+        modules;
+
+      forEachModule = modules:
+        mapModules modules // mapInputModules inputs;
     };
   };
 }
