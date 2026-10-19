@@ -111,4 +111,24 @@
       + lib.concatMapStringsSep "\n" (name: renderOption name options.${name}) (builtins.attrNames options);
   in
     pkgs.writeText "docs.md" md;
+
+  build = {
+    modules,
+    name,
+    specialArgs ? {},
+  }: let
+    configuration = nixpkgs.lib.nixosSystem {
+      inherit (pkgs.stdenv.hostPlatform) system;
+      inherit specialArgs modules;
+    };
+
+    path = lib.splitString "." name;
+
+    module =
+      builtins.foldl'
+      (acc: path: acc.${path})
+      configuration.config
+      path;
+  in
+    module;
 }
