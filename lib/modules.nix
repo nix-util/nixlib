@@ -5,16 +5,14 @@
   ...
 }: {
   docs = {
-    module,
+    modules,
     name,
     specialArgs ? {},
     ...
   }: let
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
-      inherit specialArgs;
-
-      modules = [module];
+      inherit specialArgs modules;
     };
 
     isPackage = value:

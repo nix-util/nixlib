@@ -46,7 +46,7 @@
       };
 
       docs = libmodules.docs {
-        module = self.nixosModules.bazz;
+        modules = libattrs.attrsToValueList self.nixosModules;
         name = "bazz";
       };
     });
