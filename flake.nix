@@ -32,15 +32,11 @@
           pkgs = nixpkgs.legacyPackages.${system};
           lib = pkgs.lib;
 
-          libpkgs = import ./lib/pkgs.nix {inherit pkgs lib;};
-          libattrs = import ./lib/attrs.nix {inherit pkgs lib;};
+          libs = import ./lib {inherit pkgs lib;};
+
+          inputSystems = mapInputSystems {inherit inputs system lib;};
         in
-          {
-            inherit system pkgs lib libpkgs libattrs;
-          }
-          // mapInputSystems {
-            inherit inputs system lib;
-          })
+          {inherit system pkgs lib;} // libs // inputSystems)
         systems;
 
       forEachSystem = mapAttrs:
@@ -61,16 +57,22 @@
 
       mapModules = modules:
         nixpkgs.lib.mapAttrs
-        (_module_key: module: {...}: {
+        (name: module: {
+          pkgs,
+          lib,
+          ...
+        }: let
+          libs = import ./lib {inherit pkgs lib;};
+        in {
           imports = [
-            ({config, ...}: {config._module.args = {inherit inputs;};})
+            ({config, ...}: {config._module.args = {inherit inputs;} // libs;})
             module
           ];
         })
         modules;
 
-      forEachModule = modules:
-        mapModules modules // mapInputModules inputs;
+      forEachModule = mapAttrs:
+        mapModules (mapAttrs {}) // mapInputModules inputs;
     };
   };
 }

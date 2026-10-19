@@ -13,18 +13,36 @@
   in {
     formatter = util.forEachSystem ({pkgs, ...}: pkgs.alejandra);
 
-    nixosModules = util.forEachModule {
-      bazz = {...}: {};
-    };
+    nixosModules = util.forEachModule ({...}: {
+      bazz = {lib, ...}: {
+        options.bazz = lib.mkOption {
+          description = "An example module";
+          type = lib.types.submodule {
+            options = {
+              val = lib.mkOption {
+                description = "A simple test value";
+                type = lib.types.str;
+              };
+            };
+          };
+        };
+      };
+    });
 
     packages = util.forEachSystem ({
+      self,
       external,
       libpkgs,
       libattrs,
+      libmodules,
       ...
     }: {
       env = libpkgs.mkEnv {
         packages = libattrs.attrsToValueList external.packages;
+      };
+
+      docs = libmodules.docs {
+        module = self.nixosModules.bazz;
       };
     });
 
