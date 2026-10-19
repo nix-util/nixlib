@@ -19,13 +19,15 @@
         lib,
         ...
       }: {
-        options.bazz = lib.mkOption {
-          description = "An example module";
-          type = lib.types.submodule {
-            options = {
-              val = lib.mkOption {
-                description = "A simple test value";
-                type = lib.types.str;
+        options.bazz = {
+          foo = lib.mkOption {
+            description = "An example module";
+            type = lib.types.submodule {
+              options = {
+                val = lib.mkOption {
+                  description = "A simple test value";
+                  type = lib.types.str;
+                };
               };
             };
           };
@@ -36,17 +38,17 @@
     packages = util.forEachSystem ({
       self,
       external,
+      lib,
       libpkgs,
-      libattrs,
       libmodules,
       ...
     }: {
       env = libpkgs.mkEnv {
-        packages = libattrs.attrsToValueList external.packages;
+        packages = lib.attrValues external.packages;
       };
 
       docs = libmodules.docs {
-        modules = libattrs.attrsToValueList self.nixosModules;
+        modules = lib.attrValues self.nixosModules;
         name = "bazz";
       };
     });

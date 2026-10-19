@@ -64,8 +64,7 @@
           [(lib.nameValuePair name (optionInfo value))] ++ children)
       (builtins.attrNames options);
 
-    target = {${name} = configuration.options.${name};};
-    options = lib.listToAttrs (flatten "" target);
+    options = lib.listToAttrs (flatten "" configuration.options.${name});
 
     renderDefault = default:
       if builtins.length (lib.splitString "\n" default) > 1
