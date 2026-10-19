@@ -103,8 +103,7 @@
 
       _type_: `${info.type}`${lib.optionalString (info ? default) (renderDefault info.default)}
 
-      ${info.description}${lib.optionalString (info ? example) (renderExample name info.example)}
-    '';
+      ${info.description}${lib.optionalString (info ? example) (renderExample name info.example)}'';
 
     md =
       "# Option reference\n\n"
