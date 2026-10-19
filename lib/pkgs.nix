@@ -15,4 +15,6 @@
       name = "env";
       paths = packages;
     };
+
+  mkOverride = overrideAttrs: lib.makeOverridable overrideAttrs {};
 }
