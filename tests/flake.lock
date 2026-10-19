@@ -20,7 +20,7 @@
     "nixlib": {
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-aRJmFleRvhDcpEzhyyPRwwQDcyAj8sZblGqfokUKNrU=",
+        "narHash": "sha256-N6lrkjpTcrOW+XplEGrvXvNbWXwIRNzaURWE+RtzdcM=",
         "path": "../.",
         "type": "path"
       },

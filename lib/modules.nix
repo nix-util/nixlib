@@ -1,15 +1,19 @@
 {
+  nixpkgs,
   pkgs,
   lib,
   ...
 }: {
   docs = {
     module,
+    name,
     specialArgs ? {},
     ...
   }: let
-    modules = lib.evalModules {
+    configuration = nixpkgs.lib.nixosSystem {
+      inherit (pkgs.stdenv.hostPlatform) system;
       inherit specialArgs;
+
       modules = [module];
     };
 
@@ -62,7 +66,8 @@
           [(lib.nameValuePair name (optionInfo value))] ++ children)
       (builtins.attrNames options);
 
-    options = lib.listToAttrs (flatten "" (stripModule modules.options));
+    target = {${name} = configuration.options.${name};};
+    options = lib.listToAttrs (flatten "" target);
 
     renderDefault = default:
       if builtins.length (lib.splitString "\n" default) > 1

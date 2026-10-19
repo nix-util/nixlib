@@ -32,7 +32,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
           lib = pkgs.lib;
 
-          libs = import ./lib {inherit pkgs lib;};
+          libs = import ./lib {inherit nixpkgs pkgs lib;};
 
           inputSystems = mapInputSystems {inherit inputs system lib;};
         in
@@ -62,7 +62,7 @@
           lib,
           ...
         }: let
-          libs = import ./lib {inherit pkgs lib;};
+          libs = import ./lib {inherit nixpkgs pkgs lib;};
         in {
           imports = [
             ({config, ...}: {config._module.args = {inherit inputs;} // libs;})

@@ -14,7 +14,11 @@
     formatter = util.forEachSystem ({pkgs, ...}: pkgs.alejandra);
 
     nixosModules = util.forEachModule ({...}: {
-      bazz = {lib, ...}: {
+      bazz = {
+        pkgs,
+        lib,
+        ...
+      }: {
         options.bazz = lib.mkOption {
           description = "An example module";
           type = lib.types.submodule {
@@ -43,6 +47,7 @@
 
       docs = libmodules.docs {
         module = self.nixosModules.bazz;
+        name = "bazz";
       };
     });
 
