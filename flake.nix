@@ -73,7 +73,7 @@
         modules;
 
       forEachModule = mapAttrs:
-        mapModules (mapAttrs {}) // mapInputModules inputs;
+        mapModules (mapAttrs inputs) // mapInputModules inputs;
     };
   };
 }
