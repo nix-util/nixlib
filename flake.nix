@@ -12,11 +12,10 @@
       mapInputSystems = {
         inputs,
         system,
-        lib,
       }:
-        lib.mapAttrs (
+        builtins.mapAttrs (
           _input_key: outputs:
-            lib.mapAttrs (
+            builtins.mapAttrs (
               output_key: maybe_system:
                 if maybe_system ? ${system}
                 then maybe_system.${system}
@@ -34,7 +33,7 @@
 
           libs = import ./lib {inherit nixpkgs pkgs lib;};
 
-          inputSystems = mapInputSystems {inherit inputs system lib;};
+          inputSystems = mapInputSystems {inherit inputs system;};
         in
           {inherit system pkgs lib;} // libs // inputSystems)
         systems;
@@ -62,10 +61,12 @@
           lib,
           ...
         }: let
+          system = pkgs.stdenv.hostPlatform.system;
           libs = import ./lib {inherit nixpkgs pkgs lib;};
+          inputSystems = mapInputSystems {inherit inputs system;};
         in {
           imports = [
-            ({config, ...}: {config._module.args = {inherit inputs;} // libs;})
+            ({config, ...}: {config._module.args = libs // {inputs = inputSystems;};})
             module
           ];
         })
