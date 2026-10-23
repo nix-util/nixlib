@@ -1,4 +1,5 @@
 {
+  inputs,
   nixpkgs,
   pkgs,
   lib,
@@ -116,9 +117,26 @@
     name,
     specialArgs ? {},
   }: let
+    system = pkgs.stdenv.hostPlatform.system;
+    libs = import ./. {inherit inputs nixpkgs pkgs lib;};
+    inputSystems =
+      builtins.mapAttrs (
+        _input_key: outputs:
+          builtins.mapAttrs (
+            output_key: maybe_system:
+              if maybe_system ? ${system}
+              then maybe_system.${system}
+              else maybe_system
+          )
+          outputs
+      )
+      inputs;
+
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
-      inherit specialArgs modules;
+      inherit modules;
+
+      specialArgs = specialArgs // libs // inputSystems;
     };
 
     path = lib.splitString "." name;

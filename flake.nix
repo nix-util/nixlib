@@ -31,7 +31,7 @@
           pkgs = nixpkgs.legacyPackages.${system};
           lib = pkgs.lib;
 
-          libs = import ./lib {inherit nixpkgs pkgs lib;};
+          libs = import ./lib {inherit inputs nixpkgs pkgs lib;};
 
           inputSystems = mapInputSystems {inherit inputs system;};
         in
@@ -54,26 +54,8 @@
         {}
         has_modules;
 
-      mapModules = modules:
-        nixpkgs.lib.mapAttrs
-        (name: module: {
-          pkgs,
-          lib,
-          ...
-        }: let
-          system = pkgs.stdenv.hostPlatform.system;
-          libs = import ./lib {inherit nixpkgs pkgs lib;};
-          inputSystems = mapInputSystems {inherit inputs system;};
-        in {
-          imports = [
-            ({config, ...}: {config._module.args = libs // inputSystems;})
-            module
-          ];
-        })
-        modules;
-
       forEachModule = modules:
-        mapModules modules // mapInputModules inputs;
+        modules // mapInputModules inputs;
     };
   };
 }
