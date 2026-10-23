@@ -66,14 +66,14 @@
           inputSystems = mapInputSystems {inherit inputs system;};
         in {
           imports = [
-            ({config, ...}: {config._module.args = libs // {inputs = inputSystems;};})
+            ({config, ...}: {config._module.args = libs // inputSystems;})
             module
           ];
         })
         modules;
 
-      forEachModule = mapAttrs:
-        mapModules (mapAttrs inputs) // mapInputModules inputs;
+      forEachModule = modules:
+        mapModules modules // mapInputModules inputs;
     };
   };
 }

@@ -13,7 +13,7 @@
   in {
     formatter = util.forEachSystem ({pkgs, ...}: pkgs.alejandra);
 
-    nixosModules = util.forEachModule ({...}: {
+    nixosModules = util.forEachModule {
       bazz = {
         pkgs,
         lib,
@@ -33,7 +33,7 @@
           };
         };
       };
-    });
+    };
 
     packages = util.forEachSystem ({
       self,
