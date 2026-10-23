@@ -1,61 +1,63 @@
 {
   outputs = {...}: {
-    util = {
-      inputs,
+    flake = inputs: {
       systems,
+      # System-agnostic
+      overlays ? null,
+      nixosModules ? null,
+      nixosConfigurations ? null,
+      templates ? null,
+      # System-specific
+      formatter ? null,
+      checks ? null,
+      packages ? null,
+      apps ? null,
+      devShells ? null,
     }: let
       nixpkgs =
         if inputs ? nixpkgs
         then inputs.nixpkgs
         else builtins.throw "expected inputs to contain `nixpgs`";
-    in rec {
-      mapInputSystems = {
-        inputs,
-        system,
-      }:
-        builtins.mapAttrs (
-          _input_key: outputs:
-            builtins.mapAttrs (
-              output_key: maybe_system:
-                if maybe_system ? ${system}
-                then maybe_system.${system}
-                else maybe_system
-            )
-            outputs
-        )
-        inputs;
 
-      mapSystems = systems:
-        map
-        (system: let
-          pkgs = nixpkgs.legacyPackages.${system};
-          lib = pkgs.lib;
+      nixlibs = import ./lib {inherit inputs systems nixpkgs;};
+      libsys = nixlibs.libsys;
 
-          libs = import ./lib {inherit inputs nixpkgs pkgs lib;};
+      optionalConfig = configClosure:
+        nixpkgs.lib.optionalAttrs
+        (configClosure != null)
+        (libsys.forEachConfig configClosure);
 
-          inputSystems = mapInputSystems {inherit inputs system;};
-        in
-          {inherit system pkgs lib;} // libs // inputSystems)
-        systems;
+      optionalModule = modules:
+        nixpkgs.lib.optionalAttrs
+        (modules != null)
+        (libsys.forEachModule modules);
 
-      forEachSystem = mapAttrs:
-        nixpkgs.lib.genAttrs'
-        (mapSystems systems)
-        (inputs: nixpkgs.lib.nameValuePair inputs.system (mapAttrs inputs));
+      optionalSystem = systemClosure:
+        nixpkgs.lib.optionalAttrs
+        (systemClosure != null)
+        (libsys.forEachSystem systemClosure);
+    in {
+      # No system
 
-      mapInputModules = inputs: let
-        safe_inputs = builtins.removeAttrs inputs ["self" "nixpkgs"];
-        has_modules = nixpkgs.lib.filterAttrs (_input_key: outputs: outputs ? nixosModules) safe_inputs;
-      in
-        nixpkgs.lib.foldlAttrs (
-          acc: _input_key: outputs:
-            acc // builtins.removeAttrs outputs.nixosModules ["default"]
-        )
-        {}
-        has_modules;
+      overlays = optionalConfig overlays;
 
-      forEachModule = modules:
-        modules // mapInputModules inputs;
+      nixosModules = optionalModule nixosModules;
+
+      nixosConfigurations = optionalConfig nixosConfigurations;
+
+      templates = optionalConfig templates;
+
+      # Per-system
+
+      formatter = optionalSystem formatter;
+
+      checks = optionalSystem checks;
+
+      packages = optionalSystem packages;
+
+      apps = optionalSystem apps;
+
+      devShells = optionalSystem devShells;
     };
   };
 }

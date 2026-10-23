@@ -3,6 +3,7 @@
   nixpkgs,
   pkgs,
   lib,
+  nixlib,
   ...
 }: {
   docs = {
@@ -11,9 +12,14 @@
     specialArgs ? {},
     ...
   }: let
+    system = pkgs.stdenv.hostPlatform.system;
+    inputSystems = nixlib.libsys.mapInputSystems {inherit inputs system;};
+
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
-      inherit specialArgs modules;
+      inherit modules;
+
+      specialArgs = specialArgs // nixlib // inputSystems;
     };
 
     isPackage = value:
@@ -118,25 +124,13 @@
     specialArgs ? {},
   }: let
     system = pkgs.stdenv.hostPlatform.system;
-    libs = import ./. {inherit inputs nixpkgs pkgs lib;};
-    inputSystems =
-      builtins.mapAttrs (
-        _input_key: outputs:
-          builtins.mapAttrs (
-            output_key: maybe_system:
-              if maybe_system ? ${system}
-              then maybe_system.${system}
-              else maybe_system
-          )
-          outputs
-      )
-      inputs;
+    inputSystems = nixlib.libsys.mapInputSystems {inherit inputs system;};
 
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
       inherit modules;
 
-      specialArgs = specialArgs // libs // inputSystems;
+      specialArgs = specialArgs // nixlib // inputSystems;
     };
 
     path = lib.splitString "." name;
