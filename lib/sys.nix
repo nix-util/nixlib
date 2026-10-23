@@ -30,8 +30,9 @@
       nixlibWithPkgs = nixlib.withPkgs {inherit pkgs;};
 
       inputSystems = mapInputSystems {inherit inputs system;};
+      inputSystemsWithSelf' = {self' = inputSystems.self;} // (builtins.removeAttrs inputSystems ["self"]);
     in
-      {inherit system pkgs lib;} // nixlibWithPkgs // inputSystems)
+      {inherit system pkgs lib;} // nixlibWithPkgs // inputSystemsWithSelf')
     systems;
 
   forEachSystem = mapAttrs:
@@ -50,8 +51,12 @@
     {}
     has_modules;
 
-  forEachModule = modules:
-    modules // mapInputModules inputs;
+  forEachModule = mapAttrs: let
+    nixlib = import ./. {inherit inputs systems nixpkgs;};
+    libsys = nixlib.libsys;
+    combinedInputs = {inherit libsys;} // inputs;
+  in
+    mapAttrs combinedInputs // mapInputModules inputs;
 
   forEachConfig = mapAttrs: let
     nixlib = import ./. {inherit inputs systems nixpkgs;};

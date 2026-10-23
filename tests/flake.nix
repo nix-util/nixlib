@@ -17,7 +17,7 @@
         };
       };
 
-      nixosModules = {
+      nixosModules = {...}: {
         bazz = {lib, ...}: {
           options.bazz = {
             foo = lib.mkOption {
@@ -44,19 +44,19 @@
       formatter = {pkgs, ...}: pkgs.alejandra;
 
       checks = {
-        self,
+        self',
         pkgs,
         lib,
         ...
       }: {
         fmt-check = pkgs.writeShellApplication {
           name = "fmt-check";
-          text = "${lib.getExe self.formatter} -c .";
+          text = "${lib.getExe self'.formatter} -c .";
         };
       };
 
       packages = {
-        self,
+        self',
         external,
         lib,
         libpkgs,
@@ -68,28 +68,28 @@
         };
 
         docs = libmodules.docs {
-          modules = [self.nixosModules.bazz];
+          modules = [self'.nixosModules.bazz];
           name = "bazz";
         };
       };
 
       apps = {
-        self,
+        self',
         libpkgs,
         ...
       }: {
         env = libpkgs.mkApp {
-          package = self.packages.env;
+          package = self'.packages.env;
         };
       };
 
       devShells = {
-        self,
+        self',
         pkgs,
         ...
       }: {
         default = pkgs.mkShell {
-          packages = [self.packages.env];
+          packages = [self'.packages.env];
         };
       };
     };
