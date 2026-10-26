@@ -1,19 +1,24 @@
 {
   inputs,
-  nixpkgs,
-  pkgs,
-  lib,
+  system,
   nixlib,
   ...
-}: {
+}: let
+  nixpkgs =
+    if inputs ? nixpkgs
+    then inputs.nixpkgs
+    else builtins.throw "expected inputs to contain `nixpgs`";
+
+  pkgs = nixpkgs.legacyPackages.${system};
+  lib = pkgs.lib;
+in {
   docs = {
     modules,
     name,
     specialArgs ? {},
     ...
   }: let
-    system = pkgs.stdenv.hostPlatform.system;
-    inputSystems = nixlib.libsys.mapInputSystems {inherit inputs system;};
+    inputSystems = nixlib.libsys.mapFlakeSystemInputs system;
 
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
@@ -124,7 +129,7 @@
     specialArgs ? {},
   }: let
     system = pkgs.stdenv.hostPlatform.system;
-    inputSystems = nixlib.libsys.mapInputSystems {inherit inputs system;};
+    inputSystems = nixlib.libsys.mapFlakeSystemInputs system;
 
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;

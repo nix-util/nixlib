@@ -34,6 +34,10 @@
       lib.optionalAttrs (flakeAttrs ? overlays) {inherit (flakeAttrs) overlays;}
       // lib.optionalAttrs (flakeAttrs ? nixosModules) {inherit (flakeAttrs) nixosModules;}
       // lib.optionalAttrs (flakeAttrs ? nixosConfigurations) {inherit (flakeAttrs) nixosConfigurations;}
-      // lib.optionalAttrs (systemAttrs ? formatter) {inherit (systemAttrs) formatter;};
+      // lib.optionalAttrs (systemAttrs ? formatter) {inherit (systemAttrs) formatter;}
+      // lib.optionalAttrs (systemAttrs ? checks) {inherit (systemAttrs) checks;}
+      // lib.optionalAttrs (systemAttrs ? packages) {inherit (systemAttrs) packages;}
+      // lib.optionalAttrs (systemAttrs ? apps) {inherit (systemAttrs) apps;}
+      // lib.optionalAttrs (systemAttrs ? devShells) {inherit (systemAttrs) devShells;};
   };
 }

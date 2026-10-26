@@ -65,7 +65,7 @@
           };
 
           docs = libmodules.docs {
-            modules = [self'.nixosModules.bazz];
+            modules = [self.nixosModules.bazz];
             name = "bazz";
           };
         };

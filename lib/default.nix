@@ -2,7 +2,7 @@ inputs: {
   libsys = import ./sys.nix inputs;
 
   withSystem = {system, ...}: let
-    nixlib = builtins.removeAttrs (import ./. inputs) ["withSystem"];
+    nixlib = import ./. inputs;
     pkgsInputs = {inherit system nixlib;} // inputs;
   in
     {
