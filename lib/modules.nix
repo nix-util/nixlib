@@ -18,13 +18,11 @@ in {
     specialArgs ? {},
     ...
   }: let
-    inputSystems = nixlib.libsys.mapFlakeSystemInputs system;
-
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
       inherit modules;
 
-      specialArgs = specialArgs // nixlib // inputSystems;
+      specialArgs = specialArgs // nixlib;
     };
 
     isPackage = value:
@@ -128,14 +126,11 @@ in {
     name,
     specialArgs ? {},
   }: let
-    system = pkgs.stdenv.hostPlatform.system;
-    inputSystems = nixlib.libsys.mapFlakeSystemInputs system;
-
     configuration = nixpkgs.lib.nixosSystem {
       inherit (pkgs.stdenv.hostPlatform) system;
       inherit modules;
 
-      specialArgs = specialArgs // nixlib // inputSystems;
+      specialArgs = specialArgs // nixlib;
     };
 
     path = lib.splitString "." name;
