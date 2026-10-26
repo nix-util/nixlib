@@ -8,16 +8,20 @@
   };
 
   outputs = {nixlib, ...} @ inputs:
-    nixlib.flake inputs {
+    nixlib.flake inputs ({
+      self,
+      libsys,
+      ...
+    }: {
       systems = ["x86_64-linux"];
 
-      overlays = {...}: {
+      overlays = {
         bazz = final: prev: {
           final.foo = prev.hello;
         };
       };
 
-      nixosModules = {...}: {
+      nixosModules = {
         bazz = {lib, ...}: {
           options.bazz = {
             foo = lib.mkOption {
@@ -30,10 +34,6 @@
       };
 
       nixosConfigurations = {
-        self,
-        libsys,
-        ...
-      }: {
         bazz = libsys.nixosSystem {
           imports = [self.nixosModules.bazz];
 
@@ -41,56 +41,46 @@
         };
       };
 
-      formatter = {pkgs, ...}: pkgs.alejandra;
-
-      checks = {
+      perSystem = {
         self',
+        external',
         pkgs,
-        lib,
-        ...
-      }: {
-        fmt-check = pkgs.writeShellApplication {
-          name = "fmt-check";
-          text = "${lib.getExe self'.formatter} -c .";
-        };
-      };
-
-      packages = {
-        self',
-        external,
         lib,
         libpkgs,
         libmodules,
         ...
       }: {
-        env = libpkgs.mkEnv {
-          packages = lib.attrValues external.packages;
+        formatter = pkgs.alejandra;
+
+        checks = {
+          fmt-check = pkgs.writeShellApplication {
+            name = "fmt-check";
+            text = "${lib.getExe self'.formatter} -c .";
+          };
         };
 
-        docs = libmodules.docs {
-          modules = [self'.nixosModules.bazz];
-          name = "bazz";
-        };
-      };
+        packages = {
+          env = libpkgs.mkEnv {
+            packages = lib.attrValues external'.packages;
+          };
 
-      apps = {
-        self',
-        libpkgs,
-        ...
-      }: {
-        env = libpkgs.mkApp {
-          package = self'.packages.env;
+          docs = libmodules.docs {
+            modules = [self'.nixosModules.bazz];
+            name = "bazz";
+          };
         };
-      };
 
-      devShells = {
-        self',
-        pkgs,
-        ...
-      }: {
-        default = pkgs.mkShell {
-          packages = [self'.packages.env];
+        apps = {
+          env = libpkgs.mkApp {
+            package = self'.packages.env;
+          };
+        };
+
+        devShells = {
+          default = pkgs.mkShell {
+            packages = [self'.packages.env];
+          };
         };
       };
-    };
+    });
 }

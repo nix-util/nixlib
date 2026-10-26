@@ -1,10 +1,9 @@
 inputs: {
   libsys = import ./sys.nix inputs;
 
-  withPkgs = {pkgs, ...}: let
-    lib = pkgs.lib;
-    nixlib = builtins.removeAttrs (import ./. inputs) ["withPkgs"];
-    pkgsInputs = {inherit pkgs lib nixlib;} // inputs;
+  withSystem = {system, ...}: let
+    nixlib = builtins.removeAttrs (import ./. inputs) ["withSystem"];
+    pkgsInputs = {inherit system nixlib;} // inputs;
   in
     {
       libpkgs = import ./pkgs.nix pkgsInputs;

@@ -1,63 +1,39 @@
 {
-  outputs = {...}: {
-    flake = inputs: {
-      systems,
-      # System-agnostic
-      overlays ? null,
-      nixosModules ? null,
-      nixosConfigurations ? null,
-      templates ? null,
-      # System-specific
-      formatter ? null,
-      checks ? null,
-      packages ? null,
-      apps ? null,
-      devShells ? null,
-    }: let
+  outputs = _: {
+    flake = inputs: flakeLambda: let
       nixpkgs =
         if inputs ? nixpkgs
         then inputs.nixpkgs
-        else builtins.throw "expected inputs to contain `nixpgs`";
+        else builtins.throw "expected inputs to contain `nixpkgs`";
 
-      nixlibs = import ./lib {inherit inputs systems nixpkgs;};
+      nixlibs = import ./lib {inherit inputs;};
+      lib = nixpkgs.lib;
       libsys = nixlibs.libsys;
 
-      optionalConfig = configClosure:
-        nixpkgs.lib.optionalAttrs
-        (configClosure != null)
-        (libsys.forEachConfig configClosure);
+      flakeAttrs = libsys.forEachAgnostic flakeLambda;
 
-      optionalModule = modules:
-        nixpkgs.lib.optionalAttrs
-        (modules != null)
-        (libsys.forEachModule modules);
+      systems =
+        if flakeAttrs ? systems
+        then flakeAttrs.systems
+        else builtins.throw "expected flake outputs to contain `systems";
 
-      optionalSystem = systemClosure:
-        nixpkgs.lib.optionalAttrs
-        (systemClosure != null)
-        (libsys.forEachSystem systemClosure);
-    in {
-      # No system
+      flakeSystems =
+        if flakeAttrs? perSystem
+        then
+          builtins.map (system: let
+            withSystem = nixlibs.withSystem {inherit system;};
+            rawSystem = withSystem.libpkgs.forEachSystem flakeAttrs.perSystem;
+            fullSystem = builtins.mapAttrs (_name: value: {${system} = value;}) rawSystem;
+          in
+            fullSystem)
+          systems
+        else [];
 
-      overlays = optionalConfig overlays;
-
-      nixosModules = optionalModule nixosModules;
-
-      nixosConfigurations = optionalConfig nixosConfigurations;
-
-      templates = optionalConfig templates;
-
-      # Per-system
-
-      formatter = optionalSystem formatter;
-
-      checks = optionalSystem checks;
-
-      packages = optionalSystem packages;
-
-      apps = optionalSystem apps;
-
-      devShells = optionalSystem devShells;
-    };
+      systemAttrs = lib.mergeAttrsList flakeSystems;
+    in
+      lib.optionalAttrs (flakeAttrs ? overlays) {inherit (flakeAttrs) overlays;}
+      // lib.optionalAttrs (flakeAttrs ? nixosModules) {inherit (flakeAttrs) nixosModules;}
+      // lib.optionalAttrs (flakeAttrs ? nixosConfigurations) {inherit (flakeAttrs) nixosConfigurations;}
+      // lib.optionalAttrs (systemAttrs ? formatter) {inherit (systemAttrs) formatter;};
   };
 }
