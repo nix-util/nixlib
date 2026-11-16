@@ -40,5 +40,12 @@
       // lib.optionalAttrs (systemAttrs ? packages) {inherit (systemAttrs) packages;}
       // lib.optionalAttrs (systemAttrs ? apps) {inherit (systemAttrs) apps;}
       // lib.optionalAttrs (systemAttrs ? devShells) {inherit (systemAttrs) devShells;};
+
+    templates = {
+      rust = {
+        path = ./templates/rust;
+        description = "A simple Rust project template which uses oxalica/rust-overlay";
+      };
+    };
   };
 }
