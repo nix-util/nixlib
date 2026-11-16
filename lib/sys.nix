@@ -32,8 +32,9 @@ in rec {
 
   forEachAgnostic = mapAttrs: let
     nixlib = import ./. {inherit inputs nixpkgs;};
+    lib = nixpkgs.lib;
     libsys = nixlib.libsys;
-    combinedInputs = {inherit libsys;} // inputs;
+    combinedInputs = {inherit lib libsys;} // inputs;
   in
     mapAttrs combinedInputs;
 

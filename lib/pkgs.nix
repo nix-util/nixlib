@@ -7,18 +7,23 @@
   nixpkgs =
     if inputs ? nixpkgs
     then inputs.nixpkgs
-    else builtins.throw "expected inputs to contain `nixpgs`";
+    else builtins.throw "expected inputs to contain `nixpkgs`";
 
-  pkgs = nixpkgs.legacyPackages.${system};
+  pkgs =
+    if inputs.self ? pkgsOverlays
+    then
+      import nixpkgs {
+        inherit system;
+        overlays = inputs.self.pkgsOverlays;
+      }
+    else nixpkgs.legacyPackages.${system};
+
   lib = pkgs.lib;
 in {
   forEachSystem = systemLambda: let
-    inputSystem = nixlib.libsys.mapFlakeSystemInputs system;
     self' = builtins.mapAttrs (nixlib.libsys.mapFlakeSystemOutput system) inputs.self;
-
-    pkgs = nixpkgs.legacyPackages.${system};
-    lib = pkgs.lib;
     withSystem = nixlib.withSystem args;
+    inputSystem = nixlib.libsys.mapFlakeSystemInputs system;
 
     pkgsInputs = {inherit self' pkgs lib;} // withSystem // inputSystem;
   in

@@ -18,7 +18,7 @@
         else builtins.throw "expected flake outputs to contain `systems";
 
       flakeSystems =
-        if flakeAttrs? perSystem
+        if flakeAttrs ? perSystem
         then
           builtins.map (system: let
             withSystem = nixlibs.withSystem {inherit system;};
@@ -32,6 +32,7 @@
       systemAttrs = lib.mergeAttrsList flakeSystems;
     in
       lib.optionalAttrs (flakeAttrs ? overlays) {inherit (flakeAttrs) overlays;}
+      // lib.optionalAttrs (flakeAttrs ? pkgsOverlays) {inherit (flakeAttrs) pkgsOverlays;}
       // lib.optionalAttrs (flakeAttrs ? nixosModules) {inherit (flakeAttrs) nixosModules;}
       // lib.optionalAttrs (flakeAttrs ? nixosConfigurations) {inherit (flakeAttrs) nixosConfigurations;}
       // lib.optionalAttrs (systemAttrs ? formatter) {inherit (systemAttrs) formatter;}

@@ -10,6 +10,7 @@
   outputs = {nixlib, ...} @ inputs:
     nixlib.flake inputs ({
       self,
+      lib,
       libsys,
       ...
     }: {
@@ -20,6 +21,8 @@
           final.foo = prev.hello;
         };
       };
+
+      pkgsOverlays = lib.attrValues self.overlays;
 
       nixosModules = {
         bazz = {lib, ...}: {

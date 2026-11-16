@@ -9,7 +9,15 @@
     then inputs.nixpkgs
     else builtins.throw "expected inputs to contain `nixpgs`";
 
-  pkgs = nixpkgs.legacyPackages.${system};
+  pkgs =
+    if inputs.self ? pkgsOverlays
+    then
+      import nixpkgs {
+        inherit system;
+        overlays = inputs.self.pkgsOverlays;
+      }
+    else nixpkgs.legacyPackages.${system};
+
   lib = pkgs.lib;
 in {
   docs = {
